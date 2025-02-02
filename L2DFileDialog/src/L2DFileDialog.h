@@ -231,7 +231,11 @@ namespace FileDialog {
 				std::time_t tt = std::chrono::system_clock::to_time_t(st);
 
 				std::tm mt;
+#ifdef _WIN32
 				localtime_s(&mt, &tt);
+#else
+                localtime_r(&tt, &mt);
+#endif
 				std::stringstream ss;
 				ss << std::put_time(&mt, "%F %R");
 				
@@ -275,7 +279,11 @@ namespace FileDialog {
 				ImGui::InputText("##newfolder", new_folder_name, sizeof(new_folder_name));
 				if (ImGui::Button("Create##1")) {
 					if (strlen(new_folder_name) <= 0) {
+#ifdef _WIN32
 						strcpy_s(new_folder_error, "Folder name can't be empty");
+#else
+                        strcpy(new_folder_error, "Folder name can't be empty");
+#endif
 					}
 					else {
 						std::string new_file_path = file_dialog_current_path + (file_dialog_current_path.back() == '\\' ? "" : "\\") + new_folder_name;
@@ -285,8 +293,13 @@ namespace FileDialog {
 				}
 				ImGui::SameLine();
 				if (ImGui::Button("Cancel##1")) {
+#ifdef _WIN32
 					strcpy_s(new_folder_name, "");
 					strcpy_s(new_folder_error, "");
+#else
+                    strcpy(new_folder_name, "");
+                    strcpy(new_folder_error, "");
+#endif
 					ImGui::CloseCurrentPopup();
 				}
 				ImGui::TextColored(ImColor(1.0f, 0.0f, 0.2f, 1.0f), new_folder_error);
@@ -316,7 +329,11 @@ namespace FileDialog {
 				file_dialog_file_select_index = 0;
 				file_dialog_folder_select_index = 0;
 				file_dialog_current_file = "";
+#ifdef _WIN32
 				strcpy_s(file_dialog_error, "");
+#else
+                strcpy(file_dialog_error, "");
+#endif
 				initial_path_set = false;
 				file_dialog_open = false;
 			};
@@ -328,23 +345,41 @@ namespace FileDialog {
 			if (ImGui::Button("Choose")) {
 				if (type == FileDialogType::SelectFolder) {
 					if (file_dialog_current_folder == "") {
+#ifdef _WIN32
 						strcpy_s(file_dialog_error, "Error: You must select a folder!");
+#else
+                        strcpy(file_dialog_error, "Error: You must select a folder!");
+#endif
 					}
 					else {
 						auto path = file_dialog_current_path + (file_dialog_current_path.back() == '\\' ? "" : "\\") + file_dialog_current_file;
+#ifdef _WIN32
 						strcpy_s(buffer, path.length() + 1, path.c_str());
 						strcpy_s(file_dialog_error, "");
+#else
+                        strcpy(buffer, path.c_str());
+                        strcpy(file_dialog_error, "");
+#endif
 						reset_everything();
 					}
 				}
 				else if (type == FileDialogType::OpenFile) {
 					if (file_dialog_current_file == "") {
+#ifdef _WIN32
 						strcpy_s(file_dialog_error, "Error: You must select a file!");
+#else
+                        strcpy(file_dialog_error, "Error: You must select a file!");
+#endif
 					}
 					else {
 						auto path = file_dialog_current_path + (file_dialog_current_path.back() == '\\' ? "" : "\\") + file_dialog_current_file;
+#ifdef _WIN32
 						strcpy_s(buffer, path.length() + 1, path.c_str());
 						strcpy_s(file_dialog_error, "");
+#else
+                        strcpy(buffer, path.c_str());
+                        strcpy(file_dialog_error, "");
+#endif
 						reset_everything();
 					}
 				}
@@ -364,4 +399,3 @@ namespace FileDialog {
 	}
 
 }
-
